@@ -101,7 +101,6 @@
 								"value": "@activity('Read Source Tables list').output.value",
 								"type": "Expression"
 							},
-							"isSequential": false,
 							"activities": [
 								{
 									"name": "Ingest from source to silver",
@@ -166,13 +165,13 @@
 									}
 								},
 								{
-									"name": "Update failed status",
+									"name": "Update failed status_copy1",
 									"type": "Script",
 									"dependsOn": [
 										{
 											"activity": "Ingest from source to silver",
 											"dependencyConditions": [
-												"Succeeded"
+												"Failed"
 											]
 										}
 									],
@@ -215,7 +214,7 @@
 					},
 					"adf_run_id": {
 						"type": "string",
-						"defaultValue": "a2"
+						"defaultValue": "a3"
 					}
 				},
 				"variables": {
