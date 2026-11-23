@@ -421,6 +421,14 @@
 								"landing_timestamp": {
 									"value": "@variables('start_time')",
 									"type": "Expression"
+								},
+								"load_type": {
+									"value": "@activity('Read Table Details').output.firstRow.load_type",
+									"type": "Expression"
+								},
+								"merge_keys": {
+									"value": "@coalesce(activity('Read Table Details').output.firstRow.merge_keys,'')",
+									"type": "Expression"
 								}
 							}
 						},
@@ -564,7 +572,7 @@
 							},
 							"ifTrueActivities": [
 								{
-									"name": "Script1",
+									"name": "update watermark",
 									"type": "Script",
 									"dependsOn": [],
 									"policy": {
@@ -575,8 +583,20 @@
 										"secureInput": false
 									},
 									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "LS_AzureSqlDatabase",
+										"type": "LinkedServiceReference"
+									},
 									"typeProperties": {
-										"scripts": [],
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "update ctrl.watermark\nset watermark_value=SYSUTCDATETIME()\nwhere table_id=@{pipeline().parameters.table_id}",
+													"type": "Expression"
+												}
+											}
+										],
 										"scriptBlockExecutionTimeout": "02:00:00"
 									}
 								}
