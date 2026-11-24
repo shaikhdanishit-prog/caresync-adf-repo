@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
+				"name": "Read watermark",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -16,47 +16,33 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "PostgreSqlV2Source",
-						"query": "SELECT * FROM PUBLIC.hospitals",
-						"queryTimeout": "02:00:00"
-					},
-					"sink": {
-						"type": "ParquetSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT watermark_value FROM ctrl.watermark WHERE table_id=@{pipeline().parameters.table_id}",
+							"type": "Expression"
 						},
-						"formatSettings": {
-							"type": "ParquetWriteSettings"
-						}
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
 					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "DS_PostgreSqlTable",
+					"dataset": {
+						"referenceName": "DS_AzureSqlTable",
 						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "DS_ADLS_Parquet",
-						"type": "DatasetReference",
-						"parameters": {
-							"container": "landing",
-							"folder": "test"
-						}
-					}
-				]
+					},
+					"firstRowOnly": false
+				}
 			}
 		],
+		"parameters": {
+			"table_id": {
+				"type": "string",
+				"defaultValue": "3"
+			}
+		},
+		"variables": {
+			"watermark_value": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
